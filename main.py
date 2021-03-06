@@ -10,13 +10,29 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-  print("Received message")
+
   if message.author == bot.user:
     return
   
-  if message.content.startswith("!standup"):
-    await message.channel.send("Here is the standup message")
-  
+  if message.content.startswith("!approve"):
+
+    if len(message.mentions) == 0:
+      await message.channel.send("No one was mentioned. Please try again.")
+
+    for mention in message.mentions:
+      try:
+        await mention.send("You've been notified")
+      except:
+        await message.channel.send("Notification could not be sent.")
+
+"""
+Use case:
+We have a new design
+It needs to send approval to admin
+But it needs to get sent to developers
+Then developers approve and it goes back to admin
+then design can get started
+"""
 
 stay_awake()
 bot.run(os.getenv('TOKEN'))
