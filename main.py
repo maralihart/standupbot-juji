@@ -4,6 +4,7 @@ import re
 from stay_awake import stay_awake
 
 bot = discord.Client()
+header = ":rotating_light:  **NEW APPROVAL REQUEST **:rotating_light: \n \n"
 
 @bot.event
 async def on_ready():
@@ -11,6 +12,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+  global header
 
   author = message.author
 
@@ -29,9 +31,13 @@ async def on_message(message):
         mention_pattern = re.compile(r"<@.*>", re.DOTALL)
         edited_content = mention_pattern.sub(r"", message.content[8:].strip()).strip()
 
-        await mention.send("Please review this message from **" + name + "**: \n \n" + edited_content + "\n \nView original message at https://discord.com/channels" + str(message.guild.id) + "/" + str(message.channel.id) + "/" + str(message.id))
+        await mention.send(header + "Please review this message from **" + name + "**: \n" + edited_content)
 
-        await message.channel.send(create_mention(mention.id) + " notified to approve this message: " + edited_content + " from " + "<@" + str(author.id) +">")
+        await message.channel.send(header + "From " + create_mention(author.id) + " to " + create_mention(mention.id) + ": \n" + edited_content)
+
+        
+
+        await message.delete()
 
       except:
         await message.channel.send("Notification could not be sent.")
