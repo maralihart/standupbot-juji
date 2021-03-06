@@ -1,5 +1,6 @@
 import discord
 import os
+import re
 from stay_awake import stay_awake
 
 bot = discord.Client()
@@ -11,20 +12,32 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 
-  if message.author == bot.user:
+  author = message.author
+
+  if author == bot.user:
     return
   
   if message.content.startswith("!approve"):
+
+    name = author.nick if author.nick else author.name
 
     if len(message.mentions) == 0:
       await message.channel.send("No one was mentioned. Please try again.")
 
     for mention in message.mentions:
       try:
-        await mention.send("You've been notified")
+        mention_pattern = re.compile(r"<@.*>", re.DOTALL)
+        edited_content = mention_pattern.sub(r"", message.content[8:].strip()).strip()
+
+        await mention.send("Please review this message from **" + name + "**: \n \n" + edited_content + "\n \nView original message at https://discord.com/channels" + str(message.guild.id) + "/" + str(message.channel.id) + "/" + str(message.id))
+
+        await message.channel.send(create_mention(mention.id) + " notified to approve this message: " + edited_content + " from " + "<@" + str(author.id) +">")
+
       except:
         await message.channel.send("Notification could not be sent.")
-
+    
+def create_mention(id):
+  return "<@"+str(id)+">"
 """
 Use case:
 We have a new design
